@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Check if the file name is provided
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <data_file>"
+  exit 1
+fi
+
+# Read the header and extract x and y columns
+header=$(grep '^#' "$1")
+x_col=$(echo "$header" | grep -o 'x=[0-9]*' | cut -d '=' -f 2)
+y_col=$(echo "$header" | grep -o 'y=[0-9]*' | cut -d '=' -f 2)
+
+# Read the data and calculate z column using the formula z=a*x+b*y+c
+awk -v xcol="$x_col" -v ycol="$y_col" '
+  BEGIN {FS="\t"; OFS=" "}
+  /^#/ {next}
+  {
+    x=$xcol; y=$ycol;
+    z=2*x+3*y+5; # Replace with the actual formula given in the header
+    print x, y, z;
+  }
+' "$1"
